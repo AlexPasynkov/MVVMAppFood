@@ -3,11 +3,15 @@ package com.alexlearn.mvvmappfood;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.alexlearn.mvvmappfood.adapter.OnRecipeListener;
+import com.alexlearn.mvvmappfood.adapter.RecipeRecyclerAdapter;
 import com.alexlearn.mvvmappfood.models.Recipe;
 import com.alexlearn.mvvmappfood.requests.RecipeApi;
 import com.alexlearn.mvvmappfood.requests.ServiceGenerator;
@@ -28,28 +32,25 @@ import retrofit2.Response;
 //Этот класс наследует класс BaseActivity(тот класс, который мы сделали руками без помощи программы)
 //Базовый класс уже наследует AppCompatActivity. Поэтому наследник RecipeListActivity тоже автоматические наследует AppCompatActivity без необходимости
 // это тут в классе где-то указывать
-public class RecipeListActivity extends BaseActivity {
+public class RecipeListActivity extends BaseActivity implements OnRecipeListener {
 
     private static final String TAG = "RecipeListActivity";
 
     private RecipeListViewModel mRecipeListViewModel;
+    private RecyclerView mRecyclerView;
+    private RecipeRecyclerAdapter mRecipeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
+        mRecyclerView = findViewById(R.id.recipe_list);
 
         mRecipeListViewModel = new ViewModelProvider(this).get(RecipeListViewModel.class);
 
+        initRecyclerView();
         subscribeObserver();
-
-        findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                testRetrofitRequest();
-            }
-        });
-
+        testRetrofitRequest();
     }
 
     private void subscribeObserver(){
@@ -58,14 +59,31 @@ public class RecipeListActivity extends BaseActivity {
             public void onChanged(List<Recipe> recipes) {
                 if(recipes != null){
                     Testing.printRecipes(recipes, "recipes test");
+                    mRecipeAdapter.setRecipes(recipes);
                 }
             }
         });
     }
 
+    private void initRecyclerView(){
+       mRecipeAdapter = new RecipeRecyclerAdapter( this);
+       mRecyclerView.setAdapter(mRecipeAdapter);
+       mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
     //Подключаем этот метод поиска к RecipeListViewModel
     private void searchRecipesApi(String query, int pageNumber){
         mRecipeListViewModel.searchRecipesApi(query, pageNumber);
+    }
+
+    @Override
+    public void onRecipeClick(int position) {
+
+    }
+
+    @Override
+    public void onCategoryClick(String category) {
+
     }
 
     private void testRetrofitRequest(){
@@ -143,6 +161,7 @@ public class RecipeListActivity extends BaseActivity {
 //            }
 //        });
     }
+
 
 
 }
