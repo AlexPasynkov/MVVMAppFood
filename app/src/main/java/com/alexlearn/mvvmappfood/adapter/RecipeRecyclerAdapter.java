@@ -12,6 +12,7 @@ import com.alexlearn.mvvmappfood.models.Recipe;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -22,12 +23,12 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     public RecipeRecyclerAdapter(OnRecipeListener mOnRecipeListener) {
         this.mOnRecipeListener = mOnRecipeListener;
+        mRecipes = new ArrayList<>();
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_recipe_list_item, parent, false);
         return new RecipeViewHolder(view, mOnRecipeListener);
     }
@@ -37,7 +38,8 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         //Implementing glide for images download
         RequestOptions requestOptions = new RequestOptions()
                 .placeholder(R.drawable.ic_launcher_background);
-        Glide.with(holder.itemView.getContext())
+
+        Glide.with(((RecipeViewHolder)holder).itemView)
                 .setDefaultRequestOptions(requestOptions)
                 .load(mRecipes.get(position).getImage_url())
                 .into(((RecipeViewHolder)holder).image);

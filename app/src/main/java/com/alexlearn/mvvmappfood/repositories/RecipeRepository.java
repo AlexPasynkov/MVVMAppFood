@@ -17,7 +17,6 @@ public class RecipeRepository {
         if(instance == null){
             instance = new RecipeRepository();
         }
-
         return instance;
     }
 

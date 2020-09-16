@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- I need this file to be able to get images from http web sites!
+also I need to add this to android manifest file-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted= "true">
+        <domain includeSubdomains = "true">static.foodfork.com</domain>
+    </domain-config>
+
+</network-security-config>

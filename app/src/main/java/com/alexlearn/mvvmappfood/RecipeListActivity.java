@@ -7,27 +7,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+
+import androidx.appcompat.widget.SearchView;
 
 import com.alexlearn.mvvmappfood.adapter.OnRecipeListener;
 import com.alexlearn.mvvmappfood.adapter.RecipeRecyclerAdapter;
 import com.alexlearn.mvvmappfood.models.Recipe;
-import com.alexlearn.mvvmappfood.requests.RecipeApi;
-import com.alexlearn.mvvmappfood.requests.ServiceGenerator;
-import com.alexlearn.mvvmappfood.requests.responses.RecipeResponse;
-import com.alexlearn.mvvmappfood.requests.responses.RecipeSearchResponse;
-import com.alexlearn.mvvmappfood.util.Constans;
+
 import com.alexlearn.mvvmappfood.util.Testing;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeListViewModel;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 //Этот класс наследует класс BaseActivity(тот класс, который мы сделали руками без помощи программы)
 //Базовый класс уже наследует AppCompatActivity. Поэтому наследник RecipeListActivity тоже автоматические наследует AppCompatActivity без необходимости
@@ -50,7 +40,8 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
         initRecyclerView();
         subscribeObserver();
-        testRetrofitRequest();
+        initSearchView();
+
     }
 
     private void subscribeObserver(){
@@ -71,11 +62,6 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    //Подключаем этот метод поиска к RecipeListViewModel
-    private void searchRecipesApi(String query, int pageNumber){
-        mRecipeListViewModel.searchRecipesApi(query, pageNumber);
-    }
-
     @Override
     public void onRecipeClick(int position) {
 
@@ -86,9 +72,24 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     }
 
-    private void testRetrofitRequest(){
+    private void initSearchView(){
+        final SearchView searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                mRecipeListViewModel.searchRecipesApi(s, 1);
+                return false;
+            }
 
-        searchRecipesApi("chicken breast", 1);
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+    }
+    //private void testRetrofitRequest(){
+
+
      //   RecipeApi recipeApi = ServiceGenerator.getRecipeApi();
 
 //        Call<RecipeSearchResponse> responseCall = recipeApi
@@ -160,7 +161,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 //
 //            }
 //        });
-    }
+  //  }
 
 
 
