@@ -89,7 +89,7 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private boolean isLoading(){
         if(mRecipes != null) {
             if (mRecipes.size() > 0) {
-                if (mRecipes.get(mRecipes.size() - 1).getTitle().equals("LOADIING...")) {
+                if (mRecipes.get(mRecipes.size() - 1).getTitle().equals("LOADING...")) {
                     return true;
                 }
             }
