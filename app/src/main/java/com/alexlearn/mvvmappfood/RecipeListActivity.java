@@ -15,6 +15,7 @@ import com.alexlearn.mvvmappfood.adapter.RecipeRecyclerAdapter;
 import com.alexlearn.mvvmappfood.models.Recipe;
 
 import com.alexlearn.mvvmappfood.util.Testing;
+import com.alexlearn.mvvmappfood.util.VerticalSpacingDecorator;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeListViewModel;
 
 import java.util.List;
@@ -41,6 +42,10 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         initRecyclerView();
         subscribeObserver();
         initSearchView();
+        if(!mRecipeListViewModel.isViewingRecipes())
+        {   //display search categories
+                        displaySearchCategories();
+        }
 
     }
 
@@ -58,8 +63,11 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     private void initRecyclerView(){
        mRecipeAdapter = new RecipeRecyclerAdapter( this);
+        VerticalSpacingDecorator itemDecorator = new VerticalSpacingDecorator(30);
+        mRecyclerView.addItemDecoration(itemDecorator);
        mRecyclerView.setAdapter(mRecipeAdapter);
        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
     }
 
     @Override
@@ -69,7 +77,8 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @Override
     public void onCategoryClick(String category) {
-
+        mRecipeAdapter.displayLoading();
+        mRecipeListViewModel.searchRecipesApi(category, 1);
     }
 
     private void initSearchView(){
@@ -164,6 +173,11 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 //        });
   //  }
 
+    private void displaySearchCategories(){
+        mRecipeListViewModel.setIsViewingRecipes(false);
+        mRecipeAdapter.displaySearchCategory();
+    }
 
+    
 
 }

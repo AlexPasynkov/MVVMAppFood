@@ -14,8 +14,10 @@ public class RecipeListViewModel extends ViewModel {
 
     private RecipeRepository mRecipeRepository;
    // private RecipeApiClient mRecipeApiClient;
+    private boolean mIsViewingRecipes;
 
     public RecipeListViewModel() {
+        mIsViewingRecipes = false;
         mRecipeRepository = RecipeRepository.getInstance();
     }
 
@@ -25,6 +27,15 @@ public class RecipeListViewModel extends ViewModel {
 
     //подключаем RecipeListViewModel к RecipeRepository
     public void searchRecipesApi(String query, int pageNumber){
+        mIsViewingRecipes = true;
         mRecipeRepository.searchRecipesApi(query, pageNumber);
+    }
+
+    public boolean isViewingRecipes(){
+        return mIsViewingRecipes;
+    }
+
+    public void setIsViewingRecipes(boolean isViewingRecipes){
+        mIsViewingRecipes = isViewingRecipes;
     }
 }

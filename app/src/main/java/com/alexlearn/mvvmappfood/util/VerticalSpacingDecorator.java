@@ -1,0 +1,25 @@
+package com.alexlearn.mvvmappfood.util;
+
+import android.graphics.Rect;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+
+//добавляем расстояние между елементами меню
+public class VerticalSpacingDecorator extends RecyclerView.ItemDecoration {
+
+    private final int verticalSpaceHeight;
+
+    public VerticalSpacingDecorator(int verticalSpaceHeight) {
+        this.verticalSpaceHeight = verticalSpaceHeight;
+    }
+
+    @Override
+    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+
+        outRect.top = verticalSpaceHeight;
+       // super.getItemOffsets(outRect, view, parent, state);
+    }
+}

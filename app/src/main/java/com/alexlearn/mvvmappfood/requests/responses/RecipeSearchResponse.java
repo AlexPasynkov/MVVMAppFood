@@ -21,7 +21,7 @@ public class RecipeSearchResponse {
     //Список всех рецептов, которые будут выведены на экран при единичном запросе
     @SerializedName("recipes")
     @Expose()
-    private List<Recipe>recipes;
+    private List<Recipe> recipes;
 
     public int getCount() {
         return count;
