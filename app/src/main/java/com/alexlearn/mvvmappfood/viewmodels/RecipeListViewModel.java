@@ -16,9 +16,12 @@ public class RecipeListViewModel extends ViewModel {
    // private RecipeApiClient mRecipeApiClient;
     private boolean mIsViewingRecipes;
 
+    //cancel request while you press back in search mode
+    private boolean mIsPerformingQuery;
+
     public RecipeListViewModel() {
-        mIsViewingRecipes = false;
         mRecipeRepository = RecipeRepository.getInstance();
+        mIsPerformingQuery = false;
     }
 
     public LiveData<List<Recipe>> getRecipes(){
@@ -28,7 +31,14 @@ public class RecipeListViewModel extends ViewModel {
     //подключаем RecipeListViewModel к RecipeRepository
     public void searchRecipesApi(String query, int pageNumber){
         mIsViewingRecipes = true;
+        mIsPerformingQuery = true;
         mRecipeRepository.searchRecipesApi(query, pageNumber);
+    }
+
+    public void searchNextPage(){
+        if(!mIsPerformingQuery && mIsViewingRecipes){
+            mRecipeRepository.searchNextPage();
+        }
     }
 
     public boolean isViewingRecipes(){
@@ -37,5 +47,26 @@ public class RecipeListViewModel extends ViewModel {
 
     public void setIsViewingRecipes(boolean isViewingRecipes){
         mIsViewingRecipes = isViewingRecipes;
+    }
+
+    public void setIsPerformingQuery(boolean isPerformingQuery){
+        mIsPerformingQuery = isPerformingQuery;
+    }
+
+    public boolean setIsPerformingQuery(){
+       return mIsPerformingQuery;
+    }
+
+    public boolean onBackPressed(){
+        if(mIsPerformingQuery){
+            //cancel query
+            mRecipeRepository.cancelRequest();
+            setIsPerformingQuery(false);
+        }
+        if(mIsViewingRecipes){
+            mIsViewingRecipes = false;
+            return false;
+        }
+        return true;
     }
 }

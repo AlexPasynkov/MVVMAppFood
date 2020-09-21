@@ -91,10 +91,17 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public int getItemViewType(int position) {
         if(mRecipes.get(position).getSocial_rank() == -1){
             return CATEGORY_TYPE;
-        }
+        }//show loading animation
         else if(mRecipes.get(position).getTitle().equals("LOADING...")){
             return LOADING_TYPE;
-        } else{
+        }
+        //upload another 30 recipes
+        else if(position == mRecipes.size() - 1
+                && position != 0
+                && !mRecipes.get(position).getTitle().equals("EXHAUSTED...")){
+            return LOADING_TYPE;
+        }
+        else{
             return RECIPE_TYPE;
         }
     }

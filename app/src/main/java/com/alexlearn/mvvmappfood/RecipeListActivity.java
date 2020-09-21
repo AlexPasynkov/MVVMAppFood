@@ -1,5 +1,6 @@
 package com.alexlearn.mvvmappfood;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -7,6 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.appcompat.widget.SearchView;
 
@@ -30,12 +33,14 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     private RecipeListViewModel mRecipeListViewModel;
     private RecyclerView mRecyclerView;
     private RecipeRecyclerAdapter mRecipeAdapter;
+    private SearchView mSearchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_list);
         mRecyclerView = findViewById(R.id.recipe_list);
+        mSearchView = findViewById(R.id.search_view);
 
         mRecipeListViewModel = new ViewModelProvider(this).get(RecipeListViewModel.class);
 
@@ -47,6 +52,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
                         displaySearchCategories();
         }
 
+        setSupportActionBar(findViewById(R.id.toolbar));
     }
 
     private void subscribeObserver(){
@@ -54,8 +60,12 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
             @Override
             public void onChanged(List<Recipe> recipes) {
                 if(recipes != null){
-                    Testing.printRecipes(recipes, "recipes test");
-                    mRecipeAdapter.setRecipes(recipes);
+                    if(mRecipeListViewModel.isViewingRecipes()){
+                        Testing.printRecipes(recipes, "recipes test");
+                        //cancel query on back pressed
+                        mRecipeListViewModel.setIsPerformingQuery(false);
+                        mRecipeAdapter.setRecipes(recipes);
+                    }
                 }
             }
         });
@@ -68,6 +78,17 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
        mRecyclerView.setAdapter(mRecipeAdapter);
        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+       //init uploading of next 30 recipes on screen
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            //this method allows to understand when we reached bottom of list (30 recipies) and what to do next
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                if (!mRecyclerView.canScrollVertically(1)){
+                    //search the next page
+                    mRecipeListViewModel.searchNextPage();
+                }
+            }
+        });
     }
 
     @Override
@@ -79,15 +100,18 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     public void onCategoryClick(String category) {
         mRecipeAdapter.displayLoading();
         mRecipeListViewModel.searchRecipesApi(category, 1);
+        mSearchView.clearFocus();
     }
 
     private void initSearchView(){
-        final SearchView searchView = findViewById(R.id.search_view);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 mRecipeAdapter.displayLoading();
                 mRecipeListViewModel.searchRecipesApi(s, 1);
+                //cancel request while you press back in search mode
+                mSearchView.clearFocus();
                 return false;
             }
 
@@ -178,6 +202,26 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         mRecipeAdapter.displaySearchCategory();
     }
 
-    
+    @Override
+    public void onBackPressed() {
+        if(mRecipeListViewModel.onBackPressed()){
+            super.onBackPressed();
+        }else{
+            displaySearchCategories();
+        }
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.recipe_search_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.action_categories);{
+            displaySearchCategories();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
