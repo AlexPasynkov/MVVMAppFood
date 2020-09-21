@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.alexlearn.mvvmappfood.AppExecutors;
 import com.alexlearn.mvvmappfood.models.Recipe;
+import com.alexlearn.mvvmappfood.requests.responses.RecipeResponse;
 import com.alexlearn.mvvmappfood.requests.responses.RecipeSearchResponse;
 import com.alexlearn.mvvmappfood.util.Constans;
 
@@ -28,6 +29,9 @@ public class RecipeApiClient {
     private static RecipeApiClient instance;
     private MutableLiveData<List<Recipe>> mRecipes;
     private RetrieveRecipesRunnable mRetrieveRecipesRunnable;
+    //Variable for getting a single recipe from the list
+    private MutableLiveData<Recipe> mRecipe;
+    private RetrieveRecipeRunnable mRetrieveRecipeRunnable;
 
     public static RecipeApiClient getInstance(){
         if(instance == null){
@@ -38,10 +42,15 @@ public class RecipeApiClient {
 
     private RecipeApiClient(){
         mRecipes = new MutableLiveData<>();
+        mRecipe = new MutableLiveData<>();
     }
 
     public LiveData<List<Recipe>> getRecipes(){
         return mRecipes;
+    }
+
+    public LiveData<Recipe> getRecipe(){
+        return mRecipe;
     }
 
     public void searchRecipesApi(String query, int pageNumber){
@@ -58,6 +67,21 @@ public class RecipeApiClient {
                 handler.cancel(true);
             }
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS );
+    }
+
+    public void searchRecipeById(String recipeId){
+        if(mRetrieveRecipeRunnable != null){
+            mRetrieveRecipeRunnable = null;
+        }
+        mRetrieveRecipeRunnable = new RetrieveRecipeRunnable(recipeId);
+        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveRecipeRunnable);
+        AppExecutors.getInstance().networkIO().schedule(new Runnable() {
+            @Override
+            public void run() {
+                //let the user know that the time is out
+                handler.cancel(true);
+            }
+        }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     //Мы создали класс внутри класса RecipeApiClient для отправки и получения запроса
@@ -117,9 +141,55 @@ public class RecipeApiClient {
         }
     }
 
+    private class RetrieveRecipeRunnable implements Runnable {
+        private String recipeId;
+        boolean cancelRequest;
+
+        public RetrieveRecipeRunnable(String recipeId) {
+            this.recipeId = recipeId;
+            cancelRequest = false;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Response response = getRecipe(recipeId).execute();
+                if (cancelRequest) {
+                    return;
+                }
+                if (response.code() == 200) {
+                    Recipe recipe = ((RecipeResponse) response.body()).getRecipe();
+                    mRecipe.postValue(recipe);
+                } else {
+                    String error = response.errorBody().string();
+                    Log.e(TAG, "run: " + error);
+                    mRecipe.postValue(null);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                mRecipe.postValue(null);
+            }
+        }
+
+
+        private Call<RecipeResponse> getRecipe(String recipeId) {
+            return ServiceGenerator.getRecipeApi().getRecipe(
+                    Constans.API_KEY,
+                    recipeId
+            );
+        }
+        private void cancelRequest(){
+            Log.d(TAG, "cancelRequest");
+            cancelRequest = true;
+        }
+    }
+
     public void cancelRequest(){
         if(mRetrieveRecipesRunnable != null){
             mRetrieveRecipesRunnable.cancelRequest();
+        }
+        if(mRetrieveRecipeRunnable != null ){
+            mRetrieveRecipeRunnable.cancelRequest();
         }
     }
 }

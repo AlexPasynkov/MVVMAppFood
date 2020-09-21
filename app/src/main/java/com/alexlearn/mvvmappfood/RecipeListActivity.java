@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -93,7 +94,10 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @Override
     public void onRecipeClick(int position) {
-
+        //Get to selected recipe
+        Intent intent = new Intent(this, RecipeActivity.class);
+        intent.putExtra("recipe", mRecipeAdapter.getSelectedRecipe(position));
+        startActivity(intent);
     }
 
     @Override

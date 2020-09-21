@@ -15,7 +15,6 @@ public class RecipeListViewModel extends ViewModel {
     private RecipeRepository mRecipeRepository;
    // private RecipeApiClient mRecipeApiClient;
     private boolean mIsViewingRecipes;
-
     //cancel request while you press back in search mode
     private boolean mIsPerformingQuery;
 
