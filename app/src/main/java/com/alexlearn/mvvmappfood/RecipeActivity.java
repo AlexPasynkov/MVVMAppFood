@@ -2,6 +2,8 @@ package com.alexlearn.mvvmappfood;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -14,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alexlearn.mvvmappfood.models.Recipe;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeViewModel;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 public class RecipeActivity extends BaseActivity {
 
@@ -39,6 +43,8 @@ public class RecipeActivity extends BaseActivity {
 
         //Connect view model with Activity
         mRecipeViewModel = new ViewModelProvider(this).get(RecipeViewModel.class);
+
+        showProgressBar(true);
         subscribeObserver();
         getIncomingIntent();
 
@@ -57,13 +63,46 @@ public class RecipeActivity extends BaseActivity {
             @Override
             public void onChanged(Recipe recipe) {
                 if(recipe != null){
-                    Log.d(TAG, "onChanged: ___________________________________");
-                    Log.d(TAG, "onChanged: " + recipe.getTitle());
-                    for(String ingredient: recipe.getIngredients()){
-                        Log.d(TAG, "onChanged: " + ingredient);
+                    //call animation of loading page when new recipe is selected
+                    if(recipe.getRecipe_id().equals(mRecipeViewModel.getRecipeId())){
+                        setRecipeProperties(recipe);
                     }
                 }
             }
         });
+    }
+
+    private void setRecipeProperties(Recipe recipe){
+        if(recipe != null){
+            //Glide
+            RequestOptions requestOptions = new RequestOptions()
+                    .placeholder(R.drawable.ic_launcher_background);
+
+            Glide.with(this)
+                    .setDefaultRequestOptions(requestOptions)
+                    .load(recipe.getImage_url())
+                    .into(mRecipeImage);
+
+            mRecipeTitle.setText(recipe.getTitle());
+            mRecipeRank.setText(String.valueOf(Math.round(recipe.getSocial_rank())));
+
+            mRecipeIngredientsContainer.removeAllViews();
+            for(String ingredient: recipe.getIngredients()){
+                TextView textView = new TextView(this);
+                textView.setText(ingredient);
+                textView.setTextSize(15);
+                textView.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+
+                mRecipeIngredientsContainer.addView(textView);
+            }
+        }
+        showParent();
+        showProgressBar(false);
+    }
+
+    private void showParent(){
+        mScrollView.setVisibility(View.VISIBLE);
     }
 }
