@@ -3,43 +3,64 @@ package com.alexlearn.mvvmappfood.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.util.Arrays;
 
-
+@Entity(tableName = "recipes")
 //имплементируем parcelable для того, что передавать объект с данными в другие активности
 public class Recipe  implements Parcelable {
+
 
 
     // В этом классе мы записываем всю информацию, которую мы хотим получить из сервера
     // поля должны иметь ТОЧНО ТАКОЕ ЖЕ ИМЯ КАК И данные в запросе с сайта
     // Если в json файле с сайта написано title/ то и я должен назвать поле title;
-    private String title;
-    private String publisher;
-    private String[] ingredients;
+
+    @PrimaryKey
     private String recipe_id;
+
+    @ColumnInfo(name = "title")
+    private String title;
+
+    @ColumnInfo(name = "publisher")
+    private String publisher;
+
+    @ColumnInfo(name = "image_url")
     private String image_url;
+
+    @ColumnInfo(name = "social_rank")
     private float social_rank;
 
-    public Recipe(String title, String publisher, String[] ingredients, String recipe_id,
-                  String image_url, float social_rank) {
+    @ColumnInfo(name = "ingredients")
+    private String[] ingredients;
+
+    @ColumnInfo(name = "timestamp")
+    private int timestamp;
+
+    public Recipe(String recipe_id, String title, String publisher, String image_url, float social_rank, String[] ingredients, int timestamp) {
+        this.recipe_id = recipe_id;
         this.title = title;
         this.publisher = publisher;
-        this.ingredients = ingredients;
-        this.recipe_id = recipe_id;
         this.image_url = image_url;
         this.social_rank = social_rank;
+        this.ingredients = ingredients;
+        this.timestamp = timestamp;
     }
 
     public Recipe() {
     }
 
     protected Recipe(Parcel in) {
+        recipe_id = in.readString();
         title = in.readString();
         publisher = in.readString();
-        ingredients = in.createStringArray();
-        recipe_id = in.readString();
         image_url = in.readString();
         social_rank = in.readFloat();
+        ingredients = in.createStringArray();
+        timestamp = in.readInt();
     }
 
     public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
@@ -53,6 +74,22 @@ public class Recipe  implements Parcelable {
             return new Recipe[size];
         }
     };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(recipe_id);
+        parcel.writeString(title);
+        parcel.writeString(publisher);
+        parcel.writeString(image_url);
+        parcel.writeFloat(social_rank);
+        parcel.writeStringArray(ingredients);
+        parcel.writeInt(timestamp);
+    }
 
     public String getTitle() {
         return title;
@@ -102,30 +139,24 @@ public class Recipe  implements Parcelable {
         this.social_rank = social_rank;
     }
 
+    public int getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(int timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "Recipe{" +
-                "title='" + title + '\'' +
+                "recipe_id='" + recipe_id + '\'' +
+                ", title='" + title + '\'' +
                 ", publisher='" + publisher + '\'' +
-                ", ingredients=" + Arrays.toString(ingredients) +
-                ", recipe_id='" + recipe_id + '\'' +
                 ", image_url='" + image_url + '\'' +
                 ", social_rank=" + social_rank +
+                ", ingredients=" + Arrays.toString(ingredients) +
+                ", timestamp=" + timestamp +
                 '}';
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(title);
-        parcel.writeString(publisher);
-        parcel.writeStringArray(ingredients);
-        parcel.writeString(recipe_id);
-        parcel.writeString(image_url);
-        parcel.writeFloat(social_rank);
     }
 }
