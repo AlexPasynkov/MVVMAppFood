@@ -10,14 +10,10 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.alexlearn.mvvmappfood.models.Recipe;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeViewModel;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+
 
 public class RecipeActivity extends BaseActivity {
 

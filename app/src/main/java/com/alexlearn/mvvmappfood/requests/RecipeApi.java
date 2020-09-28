@@ -1,5 +1,8 @@
 package com.alexlearn.mvvmappfood.requests;
 
+import androidx.lifecycle.LiveData;
+
+import com.alexlearn.mvvmappfood.requests.responses.ApiResponse;
 import com.alexlearn.mvvmappfood.requests.responses.RecipeResponse;
 import com.alexlearn.mvvmappfood.requests.responses.RecipeSearchResponse;
 
@@ -17,7 +20,7 @@ public interface RecipeApi {
 
     //Search request
     @GET("api/search")
-    Call<RecipeSearchResponse> searchRecipe(
+    LiveData<ApiResponse<RecipeSearchResponse>> searchRecipe(
             @Query("key") String key,
             @Query("q") String query,
             @Query("page") String page
@@ -27,7 +30,7 @@ public interface RecipeApi {
     //https://recipesapi.herokuapp.com/api/get?rId=41470
 
     @GET("api/get")
-    Call<RecipeResponse> getRecipe(
+    LiveData<ApiResponse<RecipeResponse>> getRecipe(
             @Query("key") String key,
             @Query("rId") String recipe_id
     );

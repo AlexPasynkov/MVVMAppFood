@@ -6,11 +6,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+
 import androidx.appcompat.widget.SearchView;
 import com.alexlearn.mvvmappfood.adapter.OnRecipeListener;
 import com.alexlearn.mvvmappfood.adapter.RecipeRecyclerAdapter;
+import com.alexlearn.mvvmappfood.models.Recipe;
+import com.alexlearn.mvvmappfood.util.Resource;
+import com.alexlearn.mvvmappfood.util.Testing;
 import com.alexlearn.mvvmappfood.util.VerticalSpacingDecorator;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeListViewModel;
+
+import java.util.List;
 
 //Этот класс наследует класс BaseActivity(тот класс, который мы сделали руками без помощи программы)
 //Базовый класс уже наследует AppCompatActivity. Поэтому наследник RecipeListActivity тоже автоматические наследует AppCompatActivity без необходимости
@@ -40,6 +47,19 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     }
 
     private void subscribeObservers(){
+
+        mRecipeListViewModel.getRecipes().observe(this, new Observer<Resource<List<Recipe>>>() {
+            @Override
+            public void onChanged(Resource<List<Recipe>> listResource) {
+                if(listResource != null){
+                    Log.d(TAG, "onChanged: status" + listResource.status);
+
+                    if(listResource.data != null){
+                        Testing.printRecipes(listResource.data, "data");
+                    }
+                }
+            }
+        });
         mRecipeListViewModel.getViewState().observe(this, new Observer<RecipeListViewModel.ViewState>() {
             @Override
             public void onChanged(RecipeListViewModel.ViewState viewState) {
@@ -59,6 +79,10 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         });
     }
 
+    private void searchRecipeApi(String query){
+        mRecipeListViewModel.searchRecipesApi(query, 1);
+    }
+
     private void initRecyclerView(){
         mAdapter = new RecipeRecyclerAdapter( this);
         VerticalSpacingDecorator itemDecorator = new VerticalSpacingDecorator(30);
@@ -72,7 +96,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-
+                searchRecipeApi(s);
                 return false;
             }
 
@@ -93,7 +117,7 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
 
     @Override
     public void onCategoryClick(String category) {
-
+        searchRecipeApi(category);
     }
     private void displaySearchCategories(){
         mAdapter.displaySearchCategory();

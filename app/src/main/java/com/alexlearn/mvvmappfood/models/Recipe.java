@@ -3,6 +3,7 @@ package com.alexlearn.mvvmappfood.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -13,13 +14,12 @@ import java.util.Arrays;
 //имплементируем parcelable для того, что передавать объект с данными в другие активности
 public class Recipe  implements Parcelable {
 
-
-
     // В этом классе мы записываем всю информацию, которую мы хотим получить из сервера
     // поля должны иметь ТОЧНО ТАКОЕ ЖЕ ИМЯ КАК И данные в запросе с сайта
     // Если в json файле с сайта написано title/ то и я должен назвать поле title;
 
     @PrimaryKey
+    @NonNull
     private String recipe_id;
 
     @ColumnInfo(name = "title")
