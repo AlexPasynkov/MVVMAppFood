@@ -23,6 +23,14 @@ public class RecipeSearchResponse {
     @Expose()
     private List<Recipe> recipes;
 
+    @SerializedName("error")
+    @Expose()
+    private String error;
+
+    public String getError(){
+        return error;
+    }
+
     public int getCount() {
         return count;
     }
@@ -36,6 +44,7 @@ public class RecipeSearchResponse {
         return "RecipeSearchResponse{" +
                 "count=" + count +
                 ", recipes=" + recipes +
+                ", error='" + error + '\'' +
                 '}';
     }
 }

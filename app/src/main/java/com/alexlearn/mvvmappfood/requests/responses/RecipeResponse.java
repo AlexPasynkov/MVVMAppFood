@@ -15,15 +15,23 @@ public class RecipeResponse {
     @Expose()
     private Recipe recipe;
 
+    @SerializedName("error")
+    @Expose()
+    private String error;
+
     public Recipe getRecipe(){
         return recipe;
     }
-
+    public String getError(){
+        return error;
+    }
     // Переводим в стринг полученный рецепт
+
     @Override
     public String toString() {
         return "RecipeResponse{" +
                 "recipe=" + recipe +
+                ", error='" + error + '\'' +
                 '}';
     }
 }

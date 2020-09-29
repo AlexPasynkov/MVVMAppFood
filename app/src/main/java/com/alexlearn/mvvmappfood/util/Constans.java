@@ -5,7 +5,9 @@ public class Constans {
 
     //Оригинальный из ролика умер, взяли другой сайт
     public static final String BASE_URL = "https://recipesapi.herokuapp.com/";
-    public static final int NETWORK_TIMEOUT = 3000;
+    public static final int CONNECTION_TIMEOUT = 10;
+    public static final int READ_TIMEOUT = 2;
+    public static final int WRITE_TIMEOUT = 2;
 
     //Оригинальный сайт умер, заменили на другой и он не требует apikey. Но вообще ключ по зарез нужен.
     //Без него приложение не взлетит
