@@ -1,5 +1,6 @@
 package com.alexlearn.mvvmappfood;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -120,16 +121,32 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
                 .setDefaultRequestOptions(options);
     }
 
+
+
     private void searchRecipeApi(String query){
+        mRecyclerView.smoothScrollToPosition(0);
         mRecipeListViewModel.searchRecipesApi(query, 1);
+        mSearchView.clearFocus();
     }
 
     private void initRecyclerView(){
         mAdapter = new RecipeRecyclerAdapter( this, initGlide());
         VerticalSpacingDecorator itemDecorator = new VerticalSpacingDecorator(30);
         mRecyclerView.addItemDecoration(itemDecorator);
-        mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if(!mRecyclerView.canScrollVertically(1)
+                        && mRecipeListViewModel.getViewState().getValue() == RecipeListViewModel.ViewState.RECIPES){
+                    mRecipeListViewModel.searchNextPage();
+                }
+            }
+        });
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void initSearchView(){
@@ -162,5 +179,14 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     }
     private void displaySearchCategories(){
         mAdapter.displaySearchCategory();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mRecipeListViewModel.getViewState().getValue() == RecipeListViewModel.ViewState.CATEGORIES){
+            super.onBackPressed();
+        } else{
+            mRecipeListViewModel.setViewCategories();
+        }
     }
 }
