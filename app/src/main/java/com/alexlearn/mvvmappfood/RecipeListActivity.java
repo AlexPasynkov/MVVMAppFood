@@ -19,7 +19,9 @@ import com.alexlearn.mvvmappfood.util.VerticalSpacingDecorator;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeListViewModel;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.integration.recyclerview.RecyclerViewPreloader;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
 
 import java.util.List;
 
@@ -130,10 +132,22 @@ public class RecipeListActivity extends BaseActivity implements OnRecipeListener
     }
 
     private void initRecyclerView(){
-        mAdapter = new RecipeRecyclerAdapter( this, initGlide());
+        //cache glide
+        ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
+
+        mAdapter = new RecipeRecyclerAdapter( this, initGlide(), viewPreloader);
         VerticalSpacingDecorator itemDecorator = new VerticalSpacingDecorator(30);
         mRecyclerView.addItemDecoration(itemDecorator);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        //we want to cache only 30 images
+        RecyclerViewPreloader<String> preloader = new RecyclerViewPreloader<String>(
+                Glide.with(this),
+                mAdapter,
+                viewPreloader,
+                30);
+
+        mRecyclerView.addOnScrollListener(preloader);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

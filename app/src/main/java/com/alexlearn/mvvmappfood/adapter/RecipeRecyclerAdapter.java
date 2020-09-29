@@ -1,11 +1,13 @@
 package com.alexlearn.mvvmappfood.adapter;
 
 import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alexlearn.mvvmappfood.R;
@@ -13,13 +15,19 @@ import com.alexlearn.mvvmappfood.models.Recipe;
 import com.alexlearn.mvvmappfood.util.Constans;
 import com.alexlearn.mvvmappfood.viewmodels.RecipeViewModel;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.ListPreloader;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
+        ListPreloader.PreloadModelProvider<String>
+{
 
     private static final int RECIPE_TYPE = 1;
     private static final int LOADING_TYPE = 2;
@@ -29,10 +37,15 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private List<Recipe> mRecipes;
     private OnRecipeListener mOnRecipeListener;
     private RequestManager requestManager;
+    //allows glide to cache images
+    private ViewPreloadSizeProvider<String> preloadSizeProvider;
 
-    public RecipeRecyclerAdapter(OnRecipeListener mOnRecipeListener, RequestManager requestManager) {
+    public RecipeRecyclerAdapter(OnRecipeListener mOnRecipeListener,
+                                 RequestManager requestManager,
+                                 ViewPreloadSizeProvider<String> viewPreloadSizeProvider) {
         this.mOnRecipeListener = mOnRecipeListener;
         this.requestManager = requestManager;
+        this.preloadSizeProvider = viewPreloadSizeProvider;
     }
 
     @NonNull
@@ -43,7 +56,7 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         switch (i){
             case RECIPE_TYPE:{
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_recipe_list_item, viewGroup, false);
-                return new RecipeViewHolder(view, mOnRecipeListener, requestManager);
+                return new RecipeViewHolder(view, mOnRecipeListener, requestManager, preloadSizeProvider);
             }
 
             case LOADING_TYPE:{
@@ -63,7 +76,7 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
             default:{
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_recipe_list_item, viewGroup, false);
-                return new RecipeViewHolder(view, mOnRecipeListener, requestManager);
+                return new RecipeViewHolder(view, mOnRecipeListener, requestManager, preloadSizeProvider);
             }
         }
 
@@ -190,5 +203,23 @@ public class RecipeRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             }
         }
         return null;
+    }
+
+    @NonNull
+    @Override
+    public List<String> getPreloadItems(int position) {
+        //glide needs only image url for saving
+        String url = mRecipes.get(position).getImage_url();
+        if(TextUtils.isEmpty(url)){
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(url);
+    }
+
+    @Nullable
+    @Override
+    public RequestBuilder<?> getPreloadRequestBuilder(@NonNull String item) {
+        //load saved item to the cache
+        return requestManager.load(item);
     }
 }
