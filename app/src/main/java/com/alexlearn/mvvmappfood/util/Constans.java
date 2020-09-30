@@ -9,6 +9,8 @@ public class Constans {
     public static final int READ_TIMEOUT = 2;
     public static final int WRITE_TIMEOUT = 2;
 
+    public static final int RECIPE_REFRESH_TIME = 60 * 60 * 24 * 30; //30 days
+
     //Оригинальный сайт умер, заменили на другой и он не требует apikey. Но вообще ключ по зарез нужен.
     //Без него приложение не взлетит
     public static final String API_KEY = "";
